@@ -22,12 +22,12 @@ SPREADSHEET_ID=<google-spreadsheet-id>
 SHEET_TAB_NAME=<sheet-tab-title>
 USED_ROW_COLOR=#00FF00
 👉 ใส่ค่าเป็นสตริง เช่น `USED_ROW_COLOR="#d9ead3"` เพื่อให้ `dotenv` ไม่ตัดทอนหลังเครื่องหมาย #
-GOOGLE_SERVICE_ACCOUNT_KEY=./service-account-key.json
+GOOGLE_SERVICE_ACCOUNT_KEY=./service-account-key.json # หรือวางค่า base64/JSON โดยตรงใน .env
 CRON_SCHEDULE="*/15 * * * *" # จำเป็นต้องตั้งค่าเอง เลือกรูปแบบเวลาให้เหมาะกับงานของคุณ
 RUN_ON_START=true
 ```
 
-Place the Google service account JSON file at the location referenced by `GOOGLE_SERVICE_ACCOUNT_KEY`.
+Place the Google service account JSON file at the location referenced by `GOOGLE_SERVICE_ACCOUNT_KEY`, หรือหากต้องการเก็บไว้ในตัวแปร ให้รัน `base64 service-account-key.json` แล้วนำผลลัพธ์มาใส่ใน `.env` ได้โดยตรง (รองรับทั้ง raw JSON และ base64 encoded JSON).
 
 ## Install & run
 

@@ -10,16 +10,13 @@ class SheetsService {
 
   async initializeAuth() {
     try {
-      // Load service account credentials
-      const serviceAccountKeyPath = process.env.GOOGLE_SERVICE_ACCOUNT_KEY || './service-account-key.json';
-      
-      if (!fs.existsSync(serviceAccountKeyPath)) {
-        console.warn('⚠️  Service account key file not found. Please add service-account-key.json');
+      const credentials = this.loadServiceAccountCredentials();
+
+      if (!credentials) {
+        console.warn('⚠️  Service account credentials not provided. Set GOOGLE_SERVICE_ACCOUNT_KEY or add service-account-key.json');
         return;
       }
 
-      const credentials = JSON.parse(fs.readFileSync(serviceAccountKeyPath, 'utf8'));
-      
       this.auth = new google.auth.GoogleAuth({
         credentials: credentials,
         scopes: ['https://www.googleapis.com/auth/spreadsheets']
@@ -241,6 +238,65 @@ class SheetsService {
 
   colorsMatch(colorA, colorB) {
     return this.normalizeColor(colorA) === this.normalizeColor(colorB);
+  }
+
+  loadServiceAccountCredentials() {
+    const inlineValue = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+    const fallbackPath = './service-account-key.json';
+
+    if (inlineValue) {
+      if (fs.existsSync(inlineValue)) {
+        return this.readCredentialsFile(inlineValue);
+      }
+
+      return this.parseInlineServiceAccountKey(inlineValue);
+    }
+
+    if (fs.existsSync(fallbackPath)) {
+      return this.readCredentialsFile(fallbackPath);
+    }
+
+    return null;
+  }
+
+  readCredentialsFile(filePath) {
+    try {
+      const fileContents = fs.readFileSync(filePath, 'utf8');
+      return JSON.parse(fileContents);
+    } catch (error) {
+      throw new Error(`Failed to read service account key file at ${filePath}: ${error.message}`);
+    }
+  }
+
+  parseInlineServiceAccountKey(rawValue) {
+    const trimmed = rawValue.trim();
+
+    if (!trimmed) {
+      throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY is empty. Provide a file path, JSON string, or base64 string.');
+    }
+
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      return this.parseJson(trimmed);
+    }
+
+    try {
+      const decoded = Buffer.from(trimmed, 'base64').toString('utf8');
+      if (decoded.trim().startsWith('{')) {
+        return this.parseJson(decoded);
+      }
+    } catch (error) {
+      throw new Error(`Failed to decode base64 GOOGLE_SERVICE_ACCOUNT_KEY: ${error.message}`);
+    }
+
+    throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY must be a path to a file, a JSON string, or a base64-encoded JSON string.');
+  }
+
+  parseJson(jsonString) {
+    try {
+      return JSON.parse(jsonString);
+    } catch (error) {
+      throw new Error(`Invalid Google service account JSON: ${error.message}`);
+    }
   }
 }
 
