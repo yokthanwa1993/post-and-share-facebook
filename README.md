@@ -87,7 +87,7 @@ Scheduler จะดึง `postFromSheetAndShare` ทำงานตาม cron 
 	- `GOOGLE_SERVICE_ACCOUNT_KEY` → upload the JSON as a mounted secret or use CapRover's *Config Files* feature and point the variable to its path
 	- `CRON_SCHEDULE` (e.g. `"*/15 * * * *"`) and `RUN_ON_START`
 
-2. **Deploy** – from the project root run:
+2. **Deploy (แนะนำ)** – จากโฟลเดอร์โปรเจกต์ ให้ใช้ CapRover CLI สร้าง tarball และส่งขึ้นไปโดยตรง (วิธีนี้ไม่ต้องให้ CapRover ไป clone จาก GitHub):
 
 ```bash
 caprover deploy --appName post-and-share-facebook --tarFile ./
@@ -96,3 +96,5 @@ caprover deploy --appName post-and-share-facebook --tarFile ./
 CapRover builds the Docker image defined in `Dockerfile` and runs `node scheduler.js`. There is no HTTP server; logs are available via `caprover logs -a post-and-share-facebook`.
 
 Check the server logs for detailed progress messages or errors.
+
+> ⚠️ **หากใช้เมนู Git Repository ใน CapRover UI** จะต้องใส่ Personal Access Token (PAT) ของ GitHub ที่มีสิทธิ์อ่าน repo นี้ ไม่เช่นนั้นจะเกิด error `Invalid username or token`. วิธีที่ง่ายและปลอดภัยกว่าคือใช้คำสั่ง CLI ด้านบนเพื่อส่งซอร์สด้วยตัวเองทุกครั้งที่ต้องการ deploy.
